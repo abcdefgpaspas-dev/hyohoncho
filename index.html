@@ -381,8 +381,8 @@
         if (data.session) {
           // email confirmation disabled on this project: logged in immediately
         } else {
-          noteEl.textContent = "確認メールを送信しました。メール内のリンクを開いてからログインしてください。";
           setAuthMode("signin");
+          noteEl.textContent = "確認メールを送信しました。メール内のリンクを開いてからログインしてください。";
         }
       } else {
         var res = await supabase.auth.signInWithPassword({ email: email, password: password });
