@@ -400,6 +400,7 @@
     if (/invalid login credentials/i.test(msg)) return "メールアドレスまたはパスワードが正しくありません。";
     if (/email not confirmed/i.test(msg)) return "メールの確認がまだ完了していません。届いたメールのリンクを開いてください。";
     if (/password/i.test(msg) && /least/i.test(msg)) return "パスワードは6文字以上にしてください。";
+    if (/rate limit/i.test(msg)) return "確認メールの送信数が一時的な上限に達しました。少し時間をおいて、もう一度お試しください。";
     return msg || "エラーが発生しました。もう一度お試しください。";
   }
 
