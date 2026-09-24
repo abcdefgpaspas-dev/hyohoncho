@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>植物標本帖</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --paper: #eff0e2;
+    --paper-raised: #fafaf1;
+    --paper-sunken: #e3e5d2;
+    --ink: #242f1f;
+    --ink-soft: #5c6350;
+    --ink-faint: #8b9179;
+    --accent: #a87b2e;
+    --accent-deep: #3b5d3a;
+    --on-accent-deep: #f7f6ec;
+    --line: #c9cbb2;
+    --line-strong: #b0b391;
+    --danger: #a5432f;
+    --danger-soft: #f0d9d0;
+    --chart-soil: #8a5138;
+    --shadow: 0 1px 2px rgba(36,48,31,0.07), 0 6px 18px rgba(36,48,31,0.06);
+    --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    --font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #161b13; --paper-raised: #1f2519; --paper-sunken: #11150e;
+      --ink: #e7e6d5; --ink-soft: #aeb39b; --ink-faint: #747a63;
+      --accent: #e3b564; --accent-deep: #6fa267; --on-accent-deep: #101710;
+      --line: #383f2f; --line-strong: #4a533f; --danger: #e08267; --danger-soft: #3a231c;
+      --chart-soil: #cf9873;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #161b13; --paper-raised: #1f2519; --paper-sunken: #11150e;
+    --ink: #e7e6d5; --ink-soft: #aeb39b; --ink-faint: #747a63;
+    --accent: #e3b564; --accent-deep: #6fa267; --on-accent-deep: #101710;
+    --line: #383f2f; --line-strong: #4a533f; --danger: #e08267; --danger-soft: #3a231c;
+    --chart-soil: #cf9873;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.3);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper); color: var(--ink); font-family: var(--font-body); line-height: 1.6;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  .app-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-bottom: 18px; border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
+  .app-header .brand-eyebrow { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 6px; }
+  .app-header h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 5vw, 38px); margin: 0; letter-spacing: 0.02em; }
+  .app-header .tally { text-align: right; font-size: 13px; color: var(--ink-soft); }
+  .app-header .tally strong { font-family: var(--font-display); font-size: 20px; color: var(--ink); font-weight: 600; }
+  .sample-clear { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--danger); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; font-family: var(--font-body); }
+  .signout-link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--ink-soft); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; font-family: var(--font-body); }
+  .top-line-after { border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 22px; }
+  .tab-btn { flex: 1; text-align: center; padding: 12px 10px 10px; cursor: pointer; background: var(--paper-sunken); border: 1px solid var(--line); border-bottom: none; border-radius: 6px 6px 0 0; color: var(--ink-soft); font-family: var(--font-body); font-size: 14px; position: relative; top: 1px; }
+  .tab-btn .tab-jp { display: block; font-family: var(--font-display); font-size: 16px; font-weight: 600; color: inherit; }
+  .tab-btn .tab-lat { display: block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; color: inherit; opacity: 0.7; }
+  .tab-btn.active { background: var(--paper-raised); color: var(--ink); border-color: var(--line-strong); border-bottom: 1px solid var(--paper-raised); }
+  .tab-panel { background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: 0 6px 6px 6px; padding: 22px; min-height: 280px; }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .toolbar .count { font-size: 13px; color: var(--ink-soft); }
+  .btn { font-family: var(--font-body); font-size: 14px; cursor: pointer; border-radius: 4px; padding: 9px 16px; border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink); }
+  .btn:hover { border-color: var(--ink-soft); }
+  .btn-primary { background: var(--accent-deep); color: var(--on-accent-deep); border-color: var(--accent-deep); font-weight: 700; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:disabled { opacity: 0.6; cursor: default; }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-soft); padding: 6px 10px; font-size: 13px; }
+  .btn-ghost:hover { color: var(--ink); text-decoration: underline; }
+  .btn-danger-arm { color: var(--danger); border-color: var(--danger); background: transparent; }
+  .btn-danger-arm.armed { background: var(--danger); color: var(--paper-raised); }
+
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--ink-soft); }
+  .empty-state svg { opacity: 0.55; margin-bottom: 10px; }
+  .empty-state p { margin: 4px 0; font-size: 14px; }
+  .empty-state .empty-title { font-family: var(--font-display); font-size: 18px; color: var(--ink); margin-bottom: 6px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+  .card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(36,48,31,0.08), 0 10px 22px rgba(36,48,31,0.09); }
+  .card.static { cursor: default; }
+  .card.static:hover { transform: none; box-shadow: var(--shadow); }
+  .card-photo { aspect-ratio: 4 / 3; background: var(--paper-sunken); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+  .card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-photo svg { opacity: 0.4; }
+  .sample-badge { position: absolute; top: 8px; left: 8px; background: var(--accent); color: var(--on-accent-deep); font-size: 10px; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; font-weight: 700; }
+  .card-body { padding: 13px 14px 14px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .card-title { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0; }
+  .card-sub { font-size: 12px; color: var(--ink-faint); font-style: italic; }
+  .card-meta { font-size: 12.5px; color: var(--ink-soft); display: flex; gap: 10px; flex-wrap: wrap; }
+  .card-notes { font-size: 13px; color: var(--ink-soft); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-footer { margin-top: auto; padding-top: 8px; display: flex; align-items: center; justify-content: space-between; }
+
+  .dots { display: inline-flex; gap: 3px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); display: inline-block; }
+  .dot.filled { background: var(--accent); }
+
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; color: var(--ink-soft); background: var(--paper-sunken); border: 1px solid var(--line); }
+  .badge .dot-sm { width: 6px; height: 6px; border-radius: 50%; }
+  .badge.status-growing .dot-sm { background: var(--accent-deep); }
+  .badge.status-gifted .dot-sm { background: var(--ink-faint); }
+  .badge.status-lost .dot-sm { background: var(--danger); }
+  .badge-group { color: var(--accent); }
+
+  .detail-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--ink-soft); cursor: pointer; font-family: var(--font-body); font-size: 13px; padding: 0 0 16px; }
+  .detail-back:hover { color: var(--ink); }
+  .detail-head { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+  .detail-photo { width: 200px; height: 200px; flex-shrink: 0; background: var(--paper-sunken); border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .detail-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-info h2 { font-family: var(--font-display); font-size: 26px; margin: 0 0 2px; }
+  .detail-info .card-sub { font-size: 14px; margin-bottom: 10px; display: block; }
+  .meta-grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13.5px; margin-bottom: 10px; }
+  .meta-grid dt { color: var(--ink-faint); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; align-self: center; }
+  .meta-grid dd { margin: 0; color: var(--ink); }
+  .detail-notes { font-size: 14px; color: var(--ink-soft); white-space: pre-wrap; margin-top: 8px; }
+
+  .section-title { font-family: var(--font-display); font-size: 19px; margin: 0 0 4px; border-bottom: 1px solid var(--line); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .timeline { position: relative; padding: 18px 0 0 26px; }
+  .timeline::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 10px; width: 1px; background: var(--line-strong); }
+  .timeline-item { position: relative; padding-bottom: 22px; }
+  .timeline-item::before { content: ""; position: absolute; left: -25px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-deep); border: 2px solid var(--paper-raised); }
+  .timeline-date { font-family: var(--font-display); font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .timeline-type { display: inline-block; margin-left: 8px; font-size: 11px; padding: 1px 8px; border-radius: 20px; background: var(--paper-sunken); color: var(--ink-soft); border: 1px solid var(--line); }
+  .timeline-note { font-size: 13.5px; color: var(--ink-soft); margin-top: 4px; white-space: pre-wrap; }
+  .timeline-photo { margin-top: 6px; width: 84px; height: 84px; border-radius: 3px; overflow: hidden; }
+  .timeline-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(20, 25, 15, 0.45); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal { background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: 6px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 12px; border-bottom: 1px solid var(--line); }
+  .modal-head h3 { font-family: var(--font-display); font-size: 19px; margin: 0; }
+  .modal-close { background: none; border: none; font-size: 20px; color: var(--ink-faint); cursor: pointer; line-height: 1; padding: 4px; }
+  .modal-close:hover { color: var(--ink); }
+  .modal-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+
+  .field label { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 5px; }
+  .field input[type=text], .field input[type=email], .field input[type=password], .field input[type=date], .field input[type=number], .field select, .field textarea {
+    width: 100%; border: none; border-bottom: 1px solid var(--line-strong); background: transparent; color: var(--ink);
+    font-family: var(--font-body); font-size: 15px; padding: 6px 2px; outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-bottom-color: var(--accent-deep); }
+  .field textarea { resize: vertical; min-height: 60px; font-size: 14px; border: 1px solid var(--line); border-radius: 3px; padding: 8px; }
+  .field-row { display: flex; gap: 14px; }
+  .field-row .field { flex: 1; }
+
+  .rating-input { display: flex; gap: 6px; }
+  .rating-input .dot-btn { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; padding: 0; }
+  .rating-input .dot-btn.on { background: var(--accent); border-color: var(--accent); }
+
+  .photo-drop { border: 1px dashed var(--line-strong); border-radius: 4px; padding: 10px; display: flex; align-items: center; gap: 12px; }
+  .photo-drop .preview { width: 52px; height: 52px; border-radius: 3px; background: var(--paper-sunken); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .photo-drop .preview img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-drop .drop-text { font-size: 12.5px; color: var(--ink-soft); flex: 1; }
+  .photo-drop .drop-text .fname { color: var(--ink); }
+
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
+  .form-error { font-size: 12.5px; color: var(--danger); min-height: 1em; }
+  .banner { background: var(--paper-sunken); border: 1px solid var(--line); border-radius: 4px; padding: 10px 14px; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 18px; }
+
+  .subtabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .subtab-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink-soft); font-family: var(--font-body); font-size: 13px; cursor: pointer; }
+  .subtab-btn.active { background: var(--accent-deep); color: var(--on-accent-deep); border-color: var(--accent-deep); font-weight: 700; }
+
+  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-chip { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink-soft); font-family: var(--font-body); font-size: 12.5px; cursor: pointer; }
+  .filter-chip.active { background: var(--accent-deep); color: var(--on-accent-deep); border-color: var(--accent-deep); font-weight: 700; }
+
+  .overdue-pill { margin-top: 4px; display: inline-block; font-size: 11.5px; background: var(--danger-soft); color: var(--danger); border: none; border-radius: 20px; padding: 3px 10px; cursor: pointer; font-weight: 700; font-family: var(--font-body); }
+
+  .schedule-section-title { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin: 20px 0 6px; }
+  .schedule-section-title:first-of-type { margin-top: 4px; }
+  .schedule-list { display: flex; flex-direction: column; }
+  .schedule-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .schedule-item.done { opacity: 0.55; }
+  .schedule-item.done .schedule-title { text-decoration: line-through; }
+  .schedule-checkbox { width: 18px; height: 18px; accent-color: var(--accent-deep); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+  .schedule-content { flex: 1; min-width: 0; }
+  .schedule-title { font-family: var(--font-display); font-size: 14.5px; }
+  .schedule-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .schedule-meta .plant-link { cursor: pointer; text-decoration: underline; }
+  .schedule-item.overdue .due-date { color: var(--danger); font-weight: 700; }
+
+  .grid-charts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .chart-block { margin-bottom: 10px; }
+  .chart-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+  .chart-title { font-family: var(--font-display); font-size: 14px; }
+  .chart-empty { font-size: 12.5px; color: var(--ink-soft); padding: 12px 0; }
+  .sparkline { display: block; }
+  .env-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .env-date { font-family: var(--font-display); flex-shrink: 0; width: 92px; }
+  .env-values { flex: 1; color: var(--ink); }
+  .env-note { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+
+  .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .auth-card { width: 100%; max-width: 380px; background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: 8px; padding: 30px 26px; box-shadow: var(--shadow); }
+  .auth-card .brand-eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 6px; }
+  .auth-card h1 { font-family: var(--font-display); font-size: 28px; margin: 0 0 8px; }
+  .auth-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 20px; }
+  .auth-card form { display: flex; flex-direction: column; gap: 16px; }
+  .auth-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .auth-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; text-align: center; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="auth-screen" class="auth-wrap">
+  <div class="auth-card">
+    <p class="brand-eyebrow">Hortus Domesticus</p>
+    <h1>植物標本帖</h1>
+    <p class="auth-sub">あなた専用の植物記録帳です。メールアドレスでログイン、またはアカウントを作成してください。</p>
+    <form id="auth-form">
+      <div class="field"><label>メールアドレス</label><input type="email" name="email" required autocomplete="email"></div>
+      <div class="field"><label>パスワード(6文字以上)</label><input type="password" name="password" required minlength="6" autocomplete="current-password"></div>
+      <div class="form-error" id="auth-error"></div>
+      <div class="auth-actions">
+        <button type="submit" class="btn btn-primary" id="auth-submit">ログイン</button>
+        <button type="button" class="btn btn-ghost" id="auth-toggle" style="align-self:center;">アカウントをお持ちでない方はこちら</button>
+      </div>
+    </form>
+    <p class="auth-note" id="auth-note"></p>
+  </div>
+</div>
+
+<div id="app" class="wrap" hidden>
+  <header class="app-header">
+    <div>
+      <p class="brand-eyebrow">Hortus Domesticus &mdash; 家庭植物標本帖</p>
+      <h1>植物標本帖</h1>
+    </div>
+    <div class="tally" id="tally"></div>
+  </header>
+  <div class="top-line-after"></div>
+
+  <nav class="tabs" id="tabs"></nav>
+  <main class="tab-panel" id="main"></main>
+</div>
+
+<div id="modal-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var supabase = window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
+  var currentUser = null;
+
+  var LEAF_SVG = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3c4 1 7 4 7 9a7 7 0 0 1-7 7 7 7 0 0 1-7-7c0-5 3-8 7-9z"/><path d="M12 20V9"/></svg>';
+  var LOG_TYPES = [
+    { value: "water", label: "水やり" },
+    { value: "repot", label: "植え替え" },
+    { value: "fertilize", label: "施肥" },
+    { value: "prune", label: "剪定" },
+    { value: "growth", label: "成長・変化" },
+    { value: "other", label: "その他" }
+  ];
+  var STATUS = { growing: "育成中", gifted: "譲った・手放した", lost: "枯れてしまった" };
+  var PLANT_GROUPS = [
+    { value: "pachypo", label: "パキポカウレックス" },
+    { value: "agave", label: "アガベ" },
+    { value: "epiphyte", label: "着生ラン" },
+    { value: "bicaku", label: "ビカクシダ" },
+    { value: "other", label: "その他" }
+  ];
+  var WATER_METHODS = [
+    { value: "normal", label: "通常潅水" },
+    { value: "split", label: "分割潅水" },
+    { value: "soak", label: "腰水" }
+  ];
+  var SCHEDULE_PRESETS = [
+    { title: "発根チェック", days: 14 },
+    { title: "根張り評価", days: 35 },
+    { title: "水やり再開の検討", days: 7 }
+  ];
+  var ENV_METRICS = {
+    temp: { label: "気温", unit: "℃", color: "var(--accent)" },
+    humidity: { label: "湿度", unit: "%", color: "var(--accent-deep)" },
+    soil_temp: { label: "地温", unit: "℃", color: "var(--chart-soil)" }
+  };
+
+  var state = {
+    tab: "plants",
+    shopSubTab: "visits",
+    groupFilter: "all",
+    shops: [], plants: [], wishlist: [], schedule: [], envLogs: [],
+    shopsLoaded: false, plantsLoaded: false, wishlistLoaded: false, scheduleLoaded: false, envLoaded: false,
+    openPlantId: null,
+    openPlantLogs: null
+  };
+
+  var photoUrlCache = {};
+  var armedTimers = {};
+  var pendingPhoto = { file: null, previewUrl: null };
+
+  function esc(s) {
+    if (s === undefined || s === null) return "";
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fmtDate(iso) {
+    if (!iso) return "―";
+    var p = iso.split("-");
+    if (p.length !== 3) return esc(iso);
+    return p[0] + "年" + parseInt(p[1], 10) + "月" + parseInt(p[2], 10) + "日";
+  }
+  function fmtDateShort(iso) {
+    var p = (iso || "").split("-");
+    if (p.length !== 3) return iso || "";
+    return parseInt(p[1], 10) + "/" + parseInt(p[2], 10);
+  }
+  function todayIso() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function addDaysIso(iso, days) {
+    var d = new Date(iso + "T00:00:00");
+    d.setDate(d.getDate() + days);
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function groupLabel(v) {
+    var g = PLANT_GROUPS.find(function (x) { return x.value === v; });
+    return g ? g.label : v;
+  }
+  function emptyStateHtml(title, body) {
+    return '<div class="empty-state">' + LEAF_SVG.replace('40" height="40', '44" height="44') +
+      '<p class="empty-title">' + esc(title) + '</p><p>' + esc(body) + '</p></div>';
+  }
+  function photoTag(url) {
+    if (url) return '<img src="' + esc(url) + '" alt="">';
+    return LEAF_SVG;
+  }
+
+  // ---------------- auth ----------------
+  var authMode = "signin";
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    document.getElementById("auth-submit").textContent = mode === "signin" ? "ログイン" : "アカウントを作成";
+    document.getElementById("auth-toggle").textContent = mode === "signin" ? "アカウントをお持ちでない方はこちら" : "すでにアカウントをお持ちの方はこちら";
+    document.getElementById("auth-error").textContent = "";
+    document.getElementById("auth-note").textContent = "";
+  }
+
+  document.getElementById("auth-toggle").addEventListener("click", function () {
+    setAuthMode(authMode === "signin" ? "signup" : "signin");
+  });
+
+  document.getElementById("auth-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    var email = (fd.get("email") || "").toString().trim();
+    var password = (fd.get("password") || "").toString();
+    var errEl = document.getElementById("auth-error");
+    var noteEl = document.getElementById("auth-note");
+    var submitBtn = document.getElementById("auth-submit");
+    errEl.textContent = "";
+    noteEl.textContent = "";
+    submitBtn.disabled = true;
+    try {
+      if (authMode === "signup") {
+        var { data, error } = await supabase.auth.signUp({ email: email, password: password });
+        if (error) throw error;
+        if (data.session) {
+          // email confirmation disabled on this project: logged in immediately
+        } else {
+          noteEl.textContent = "確認メールを送信しました。メール内のリンクを開いてからログインしてください。";
+          setAuthMode("signin");
+        }
+      } else {
+        var res = await supabase.auth.signInWithPassword({ email: email, password: password });
+        if (res.error) throw res.error;
+      }
+    } catch (err) {
+      errEl.textContent = translateAuthError(err);
+    }
+    submitBtn.disabled = false;
+  });
+
+  function translateAuthError(err) {
+    var msg = (err && err.message) || "";
+    if (/already registered|already exists/i.test(msg)) return "このメールアドレスはすでに登録されています。ログインをお試しください。";
+    if (/invalid login credentials/i.test(msg)) return "メールアドレスまたはパスワードが正しくありません。";
+    if (/email not confirmed/i.test(msg)) return "メールの確認がまだ完了していません。届いたメールのリンクを開いてください。";
+    if (/password/i.test(msg) && /least/i.test(msg)) return "パスワードは6文字以上にしてください。";
+    return msg || "エラーが発生しました。もう一度お試しください。";
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+  }
+
+  supabase.auth.onAuthStateChange(function (event, session) {
+    if (session && session.user) {
+      currentUser = session.user;
+      document.getElementById("auth-screen").hidden = true;
+      document.getElementById("app").hidden = false;
+      loadAll();
+    } else {
+      currentUser = null;
+      document.getElementById("auth-screen").hidden = false;
+      document.getElementById("app").hidden = true;
+    }
+  });
+
+  // ---------------- data: fetch ----------------
+  async function ensurePhotoUrls(items) {
+    var paths = [];
+    items.forEach(function (i) { if (i.photo_path && !photoUrlCache[i.photo_path]) paths.push(i.photo_path); });
+    paths = Array.from(new Set(paths));
+    for (var i = 0; i < paths.length; i++) {
+      try {
+        var res = await supabase.storage.from("plant-photos").createSignedUrl(paths[i], 3600);
+        if (res.data) photoUrlCache[paths[i]] = res.data.signedUrl;
+      } catch (e) { /* ignore */ }
+    }
+    items.forEach(function (i) { i.photoUrl = i.photo_path ? photoUrlCache[i.photo_path] : null; });
+  }
+
+  async function fetchShops() {
+    var { data } = await supabase.from("plant_shops").select("*").order("created_at", { ascending: false });
+    state.shops = data || [];
+    await ensurePhotoUrls(state.shops);
+    state.shopsLoaded = true;
+    render();
+  }
+  async function fetchPlants() {
+    var { data } = await supabase.from("plant_plants").select("*").order("created_at", { ascending: false });
+    state.plants = data || [];
+    await ensurePhotoUrls(state.plants);
+    state.plantsLoaded = true;
+    render();
+  }
+  async function fetchWishlist() {
+    var { data } = await supabase.from("plant_wishlist").select("*").order("created_at", { ascending: false });
+    state.wishlist = data || [];
+    await ensurePhotoUrls(state.wishlist);
+    state.wishlistLoaded = true;
+    render();
+  }
+  async function fetchSchedule() {
+    var { data } = await supabase.from("plant_schedule").select("*").order("created_at", { ascending: false });
+    state.schedule = data || [];
+    state.scheduleLoaded = true;
+    render();
+  }
+  async function fetchEnvLogs() {
+    var { data } = await supabase.from("plant_env_logs").select("*").order("created_at", { ascending: false });
+    state.envLogs = data || [];
+    state.envLoaded = true;
+    render();
+  }
+  async function fetchLogsForPlant(plantId) {
+    var { data } = await supabase.from("plant_logs").select("*").eq("plant_id", plantId).order("date", { ascending: false });
+    state.openPlantLogs = data || [];
+    await ensurePhotoUrls(state.openPlantLogs);
+    render();
+  }
+
+  function loadAll() {
+    fetchShops();
+    fetchPlants();
+    fetchWishlist();
+    fetchSchedule();
+    fetchEnvLogs();
+  }
+
+  function openPlantDetail(plantId) {
+    state.openPlantId = plantId;
+    state.openPlantLogs = null;
+    render();
+    fetchLogsForPlant(plantId);
+  }
+  function closePlantDetail() {
+    state.openPlantId = null;
+    state.openPlantLogs = null;
+    render();
+  }
+
+  // ---------------- render ----------------
+  function render() {
+    renderTally();
+    renderTabs();
+    renderMain();
+  }
+
+  function renderTally() {
+    var shopCount = state.shops.length;
+    var plantCount = state.plants.length;
+    var today = todayIso();
+    var overdue = state.schedule.filter(function (s) { return !s.done && s.due_date && s.due_date < today; }).length;
+    var html = '<span><strong>' + shopCount + '</strong> 店舗 / <strong>' + plantCount + '</strong> 株</span>';
+    if (overdue > 0) {
+      html += '<br><button class="overdue-pill" data-action="set-tab" data-tab="schedule">⚠ 期限超過 ' + overdue + '件</button>';
+    }
+    html += '<br><button class="signout-link" data-action="sign-out">' + esc((currentUser && currentUser.email) || "") + ' からサインアウト</button>';
+    document.getElementById("tally").innerHTML = html;
+  }
+
+  function renderTabs() {
+    var tabs = [
+      { id: "plants", jp: "植物", lat: "Plants" },
+      { id: "shops", jp: "植物屋", lat: "Shops" },
+      { id: "schedule", jp: "予定", lat: "Schedule" },
+      { id: "env", jp: "環境", lat: "Climate" }
+    ];
+    document.getElementById("tabs").innerHTML = tabs.map(function (t) {
+      var active = (state.tab === t.id && !state.openPlantId) ? " active" : "";
+      return '<button class="tab-btn' + active + '" data-action="set-tab" data-tab="' + t.id + '">' +
+        '<span class="tab-jp">' + t.jp + '</span><span class="tab-lat">' + t.lat + '</span></button>';
+    }).join("");
+  }
+
+  function renderMain() {
+    var main = document.getElementById("main");
+    if (state.tab === "plants" && state.openPlantId) { main.innerHTML = renderPlantDetailHtml(); return; }
+    if (state.tab === "shops") main.innerHTML = renderShopsHtml();
+    else if (state.tab === "schedule") main.innerHTML = renderScheduleHtml();
+    else if (state.tab === "env") main.innerHTML = renderEnvHtml();
+    else main.innerHTML = renderPlantsHtml();
+  }
+
+  function renderShopsHtml() {
+    var subtabs = '<div class="subtabs">' +
+      '<button class="subtab-btn' + (state.shopSubTab === "visits" ? " active" : "") + '" data-action="set-shop-subtab" data-sub="visits">訪問記録</button>' +
+      '<button class="subtab-btn' + (state.shopSubTab === "wishlist" ? " active" : "") + '" data-action="set-shop-subtab" data-sub="wishlist">物欲リスト</button>' +
+      '</div>';
+    return subtabs + (state.shopSubTab === "wishlist" ? renderWishlistHtml() : renderShopVisitsHtml());
+  }
+
+  function renderShopVisitsHtml() {
+    if (!state.shopsLoaded) return '<div class="empty-state"><p>読み込み中…</p></div>';
+    var shops = state.shops;
+    var toolbar = '<div class="toolbar"><span class="count">' + shops.length + ' 件の記録</span>' +
+      '<button class="btn btn-primary" data-action="open-shop-form">+ 訪問記録を追加</button></div>';
+    if (!shops.length) return toolbar + emptyStateHtml("まだ記録がありません", "気になる植物屋を訪れたら、最初の1件を記録してみましょう。");
+    var cards = shops.map(function (s) {
+      var dots = "";
+      for (var i = 1; i <= 5; i++) dots += '<span class="dot' + (i <= (s.rating || 0) ? " filled" : "") + '"></span>';
+      return '<div class="card static">' +
+        '<div class="card-photo">' + photoTag(s.photoUrl) + '</div>' +
+        '<div class="card-body">' +
+          '<h3 class="card-title">' + esc(s.name) + '</h3>' +
+          '<div class="card-meta"><span>' + esc(s.area || "") + '</span><span>' + fmtDate(s.visit_date) + '</span></div>' +
+          (s.notes ? '<p class="card-notes">' + esc(s.notes) + '</p>' : "") +
+          '<div class="card-footer"><div class="dots">' + dots + '</div>' +
+          '<button class="btn btn-ghost btn-danger-arm" data-action="delete-shop" data-id="' + s.id + '">削除</button></div>' +
+        '</div></div>';
+    }).join("");
+    return toolbar + '<div class="grid">' + cards + '</div>';
+  }
+
+  function renderWishlistHtml() {
+    if (!state.wishlistLoaded) return '<div class="empty-state"><p>読み込み中…</p></div>';
+    var items = state.wishlist;
+    var toolbar = '<div class="toolbar"><span class="count">' + items.length + ' 件の物欲</span>' +
+      '<button class="btn btn-primary" data-action="open-wishlist-form">+ 欲しい株を追加</button></div>';
+    if (!items.length) return toolbar + emptyStateHtml("まだ物欲リストがありません", "気になる株を見つけたら記録しておきましょう。");
+    var cards = items.map(function (w) {
+      return '<div class="card static">' +
+        '<div class="card-photo">' + photoTag(w.photoUrl) + '</div>' +
+        '<div class="card-body">' +
+          '<h3 class="card-title">' + esc(w.name) + '</h3>' +
+          (w.species ? '<span class="card-sub">' + esc(w.species) + '</span>' : "") +
+          '<div class="card-meta">' + (w.price ? '<span>' + esc(w.price) + '</span>' : "") + (w.candidate_shop ? '<span>' + esc(w.candidate_shop) + '</span>' : "") + '</div>' +
+          (w.notes ? '<p class="card-notes">' + esc(w.notes) + '</p>' : "") +
+          '<div class="card-footer">' +
+            '<button class="btn btn-ghost" style="color:var(--accent-deep);font-weight:600;" data-action="buy-wishlist" data-id="' + w.id + '">購入して登録</button>' +
+            '<button class="btn btn-ghost btn-danger-arm" data-action="delete-wishlist" data-id="' + w.id + '">削除</button>' +
+          '</div>' +
+        '</div></div>';
+    }).join("");
+    return toolbar + '<div class="grid">' + cards + '</div>';
+  }
+
+  function renderPlantsHtml() {
+    if (!state.plantsLoaded) return '<div class="empty-state"><p>読み込み中…</p></div>';
+    var allPlants = state.plants;
+    var groupChips = [{ value: "all", label: "すべて" }].concat(PLANT_GROUPS);
+    var chipsHtml = '<div class="filter-chips">' + groupChips.map(function (g) {
+      var active = state.groupFilter === g.value ? " active" : "";
+      return '<button class="filter-chip' + active + '" data-action="set-group-filter" data-group="' + g.value + '">' + esc(g.label) + '</button>';
+    }).join("") + '</div>';
+    var plants = state.groupFilter === "all" ? allPlants : allPlants.filter(function (p) { return p.group_name === state.groupFilter; });
+    var countLabel = plants.length + " 株を記録中" + (state.groupFilter !== "all" && allPlants.length !== plants.length ? "(全" + allPlants.length + "株)" : "");
+    var toolbar = '<div class="toolbar"><span class="count">' + countLabel + '</span><button class="btn btn-primary" data-action="open-plant-form">+ 植物を追加</button></div>';
+    if (!allPlants.length) return chipsHtml + toolbar + emptyStateHtml("まだ植物が登録されていません", "お迎えした植物を登録すると、ここに育成記録が積み重なっていきます。");
+    if (!plants.length) return chipsHtml + toolbar + emptyStateHtml("該当する植物がありません", "他のグループを選ぶか、「すべて」に戻ってみてください。");
+    var cards = plants.map(function (p) {
+      var statusCls = "status-" + (p.status || "growing");
+      return '<div class="card" data-action="open-plant" data-id="' + p.id + '">' +
+        '<div class="card-photo">' + photoTag(p.photoUrl) + '</div>' +
+        '<div class="card-body">' +
+          '<h3 class="card-title">' + esc(p.name) + '</h3>' +
+          (p.species ? '<span class="card-sub">' + esc(p.species) + '</span>' : "") +
+          '<div class="card-meta"><span>お迎え ' + fmtDate(p.acquired_date) + '</span></div>' +
+          '<div class="card-footer"><div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+            (p.group_name ? '<span class="badge badge-group">' + esc(groupLabel(p.group_name)) + '</span>' : "") +
+            '<span class="badge ' + statusCls + '"><span class="dot-sm"></span>' + esc(STATUS[p.status] || STATUS.growing) + '</span>' +
+          '</div></div>' +
+        '</div></div>';
+    }).join("");
+    return chipsHtml + toolbar + '<div class="grid">' + cards + '</div>';
+  }
+
+  function renderPlantDetailHtml() {
+    var plant = state.plants.find(function (p) { return p.id === state.openPlantId; });
+    if (!plant) return '<button class="detail-back" data-action="close-plant">← 植物一覧へ戻る</button><div class="empty-state"><p>見つかりませんでした。</p></div>';
+    var statusCls = "status-" + (plant.status || "growing");
+    var head = '<button class="detail-back" data-action="close-plant">← 植物一覧へ戻る</button>' +
+      '<div class="detail-head">' +
+      '<div class="detail-photo">' + photoTag(plant.photoUrl) + '</div>' +
+      '<div class="detail-info">' +
+        '<h2>' + esc(plant.name) + '</h2>' +
+        (plant.species ? '<span class="card-sub">' + esc(plant.species) + '</span>' : "") +
+        '<dl class="meta-grid">' +
+          '<dt>グループ</dt><dd>' + (plant.group_name ? esc(groupLabel(plant.group_name)) : "未分類") + '</dd>' +
+          '<dt>お迎え日</dt><dd>' + fmtDate(plant.acquired_date) + '</dd>' +
+          '<dt>入手先</dt><dd>' + esc(plant.source || "―") + '</dd>' +
+          '<dt>置き場所</dt><dd>' + esc(plant.location || "―") + '</dd>' +
+          '<dt>状態</dt><dd><span class="badge ' + statusCls + '"><span class="dot-sm"></span>' + esc(STATUS[plant.status] || STATUS.growing) + '</span></dd>' +
+        '</dl>' +
+        (plant.notes ? '<p class="detail-notes">' + esc(plant.notes) + '</p>' : "") +
+        '<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">' +
+          '<button class="btn btn-ghost" data-action="open-schedule-form" data-plant-id="' + plant.id + '">+ この植物の予定を追加</button>' +
+          '<button class="btn btn-ghost btn-danger-arm" data-action="delete-plant" data-id="' + plant.id + '">この植物を削除</button>' +
+        '</div>' +
+      '</div></div>';
+
+    var logsHtml;
+    if (state.openPlantLogs === null) {
+      logsHtml = '<p style="color:var(--ink-soft);font-size:13px;">読み込み中…</p>';
+    } else if (!state.openPlantLogs.length) {
+      logsHtml = '<p style="color:var(--ink-soft);font-size:13px;padding-top:14px;">まだ育成記録がありません。水やりや植え替えなど、変化があったら記録してみましょう。</p>';
+    } else {
+      logsHtml = '<div class="timeline">' + state.openPlantLogs.map(function (l) {
+        var typeLabel = (LOG_TYPES.find(function (t) { return t.value === l.type; }) || {}).label || l.type;
+        var methodLabel = l.method ? (WATER_METHODS.find(function (m) { return m.value === l.method; }) || {}).label : null;
+        return '<div class="timeline-item">' +
+          '<span class="timeline-date">' + fmtDate(l.date) + '</span><span class="timeline-type">' + esc(typeLabel) + '</span>' +
+          (methodLabel ? '<span class="timeline-type">' + esc(methodLabel) + '</span>' : "") +
+          (l.note ? '<div class="timeline-note">' + esc(l.note) + '</div>' : "") +
+          (l.photoUrl ? '<div class="timeline-photo"><img src="' + esc(l.photoUrl) + '" alt=""></div>' : "") +
+          '<div style="margin-top:6px;"><button class="btn btn-ghost btn-danger-arm" data-action="delete-log" data-plant-id="' + plant.id + '" data-id="' + l.id + '">削除</button></div>' +
+        '</div>';
+      }).join("") + '</div>';
+    }
+    var section = '<div class="section-title">育成記録<button class="btn btn-primary" data-action="open-log-form" data-plant-id="' + plant.id + '" style="font-size:13px;padding:6px 12px;">+ 記録を追加</button></div>' + logsHtml;
+    return head + section;
+  }
+
+  function byDueDateAsc(a, b) { return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0; }
+  function byDueDateDesc(a, b) { return a.due_date < b.due_date ? 1 : a.due_date > b.due_date ? -1 : 0; }
+
+  function renderScheduleHtml() {
+    if (!state.scheduleLoaded) return '<div class="empty-state"><p>読み込み中…</p></div>';
+    var items = state.schedule;
+    var toolbar = '<div class="toolbar"><span class="count">' + items.length + ' 件の予定</span><button class="btn btn-primary" data-action="open-schedule-form">+ 予定を追加</button></div>';
+    if (!items.length) return toolbar + emptyStateHtml("まだ予定がありません", "発根チェックや根張り評価など、確認したいタイミングを登録しておきましょう。");
+    var today = todayIso();
+    var overdue = items.filter(function (i) { return !i.done && i.due_date && i.due_date < today; }).sort(byDueDateAsc);
+    var upcoming = items.filter(function (i) { return !i.done && (!i.due_date || i.due_date >= today); }).sort(byDueDateAsc);
+    var done = items.filter(function (i) { return i.done; }).sort(byDueDateDesc);
+    var html = toolbar;
+    if (overdue.length) html += scheduleSectionHtml("期限超過", overdue, true);
+    if (upcoming.length) html += scheduleSectionHtml("今後の予定", upcoming, false);
+    if (done.length) html += scheduleSectionHtml("完了済み", done, false);
+    return html;
+  }
+  function scheduleSectionHtml(title, list, overdueFlag) {
+    return '<div class="schedule-section-title">' + esc(title) + '</div><div class="schedule-list">' +
+      list.map(function (s) { return scheduleRowHtml(s, overdueFlag); }).join("") + '</div>';
+  }
+  function scheduleRowHtml(s, overdueFlag) {
+    var rowCls = "schedule-item" + (s.done ? " done" : "") + (overdueFlag ? " overdue" : "");
+    return '<div class="' + rowCls + '">' +
+      '<input type="checkbox" class="schedule-checkbox" data-action="toggle-schedule" data-id="' + s.id + '"' + (s.done ? " checked" : "") + '>' +
+      '<div class="schedule-content">' +
+        '<div class="schedule-title">' + esc(s.title) + '</div>' +
+        '<div class="schedule-meta">' +
+          (s.plant_id ? '<span class="plant-link" data-action="goto-plant" data-id="' + s.plant_id + '">' + esc(s.plant_name || "植物") + '</span> · ' : "") +
+          '<span class="due-date">' + fmtDate(s.due_date) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn btn-ghost btn-danger-arm" data-action="delete-schedule" data-id="' + s.id + '">削除</button>' +
+    '</div>';
+  }
+
+  function sparklineSvg(points, opts) {
+    var W = 560, H = 118, padL = 4, padR = 4, padT = 12, padB = 20;
+    var vals = points.map(function (p) { return p.value; });
+    var minV = Math.min.apply(null, vals), maxV = Math.max.apply(null, vals);
+    if (minV === maxV) { minV -= 1; maxV += 1; }
+    var pad = (maxV - minV) * 0.12;
+    minV -= pad; maxV += pad;
+    var n = points.length;
+    var xStep = (W - padL - padR) / (n - 1);
+    function xAt(i) { return padL + i * xStep; }
+    function yAt(v) { return padT + (1 - (v - minV) / (maxV - minV)) * (H - padT - padB); }
+    var coords = points.map(function (p, i) { return xAt(i).toFixed(1) + "," + yAt(p.value).toFixed(1); });
+    var lineD = "M" + coords.join(" L");
+    var areaD = lineD + " L" + xAt(n - 1).toFixed(1) + "," + (H - padB) + " L" + xAt(0).toFixed(1) + "," + (H - padB) + " Z";
+    var last = points[n - 1];
+    var lastX = xAt(n - 1), lastY = yAt(last.value);
+    var midY = padT + (H - padT - padB) / 2;
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="sparkline" preserveAspectRatio="none" style="width:100%;height:104px;">' +
+      '<line x1="' + padL + '" y1="' + midY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + midY.toFixed(1) + '" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,3"/>' +
+      '<path d="' + areaD + '" fill="' + opts.color + '" fill-opacity="0.14" stroke="none"/>' +
+      '<path d="' + lineD + '" fill="none" stroke="' + opts.color + '" stroke-width="2"/>' +
+      '<circle cx="' + lastX.toFixed(1) + '" cy="' + lastY.toFixed(1) + '" r="3.5" fill="' + opts.color + '"/>' +
+      '<text x="' + Math.max(padL, lastX - 4).toFixed(1) + '" y="' + Math.max(10, lastY - 8).toFixed(1) + '" text-anchor="end" font-size="11" fill="var(--ink)" font-family="var(--font-body)">' + esc(last.value + opts.unit) + '</text>' +
+      '<text x="' + padL + '" y="' + (H - 4) + '" font-size="10" fill="var(--ink-faint)" font-family="var(--font-body)">' + esc(fmtDateShort(points[0].date)) + '</text>' +
+      '<text x="' + (W - padR) + '" y="' + (H - 4) + '" text-anchor="end" font-size="10" fill="var(--ink-faint)" font-family="var(--font-body)">' + esc(fmtDateShort(points[n - 1].date)) + '</text>' +
+    '</svg>';
+  }
+
+  function renderEnvHtml() {
+    if (!state.envLoaded) return '<div class="empty-state"><p>読み込み中…</p></div>';
+    var logs = state.envLogs.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var toolbar = '<div class="toolbar"><span class="count">' + logs.length + ' 件の記録</span><button class="btn btn-primary" data-action="open-env-form">+ 記録を追加</button></div>';
+    if (!logs.length) return toolbar + emptyStateHtml("まだ環境ログがありません", "気温・湿度・地温を記録すると、ここに推移グラフが表示されます。");
+    var chartsHtml = ["temp", "humidity", "soil_temp"].map(function (key) {
+      var pts = logs.filter(function (l) { return l[key] !== null && l[key] !== undefined; }).map(function (l) { return { date: l.date, value: Number(l[key]) }; });
+      var meta = ENV_METRICS[key];
+      var body = pts.length >= 2 ? sparklineSvg(pts, { color: meta.color, unit: meta.unit }) : '<p class="chart-empty">記録が2件以上たまるとグラフが表示されます</p>';
+      return '<div class="chart-block"><div class="chart-head"><span class="chart-title">' + esc(meta.label) + '</span></div>' + body + '</div>';
+    }).join("");
+    var listHtml = logs.slice().reverse().map(function (l) {
+      var parts = [];
+      if (l.temp !== null && l.temp !== undefined) parts.push("気温 " + l.temp + "℃");
+      if (l.humidity !== null && l.humidity !== undefined) parts.push("湿度 " + l.humidity + "%");
+      if (l.soil_temp !== null && l.soil_temp !== undefined) parts.push("地温 " + l.soil_temp + "℃");
+      return '<div class="env-row"><span class="env-date">' + fmtDate(l.date) + '</span>' +
+        '<div class="env-values">' + esc(parts.join(" / ")) + (l.note ? '<div class="env-note">' + esc(l.note) + '</div>' : "") + '</div>' +
+        '<button class="btn btn-ghost btn-danger-arm" data-action="delete-env" data-id="' + l.id + '">削除</button></div>';
+    }).join("");
+    return toolbar + '<div class="grid-charts">' + chartsHtml + '</div><div class="section-title">記録一覧</div>' + listHtml;
+  }
+
+  // ---------------- modal / forms ----------------
+  function closeModal() {
+    document.getElementById("modal-root").innerHTML = "";
+    pendingPhoto = { file: null, previewUrl: null };
+  }
+
+  function photoDropHtml() {
+    var preview = pendingPhoto.previewUrl ? '<img src="' + pendingPhoto.previewUrl + '" alt="">' : LEAF_SVG.replace(/width="\d+" height="\d+"/, 'width="22" height="22"');
+    var text = pendingPhoto.file ? '<span class="fname">' + esc(pendingPhoto.file.name) + '</span>' : "写真を選択(任意)";
+    return '<div class="field"><label>写真</label><div class="photo-drop">' +
+      '<div class="preview">' + preview + '</div>' +
+      '<div class="drop-text">' + text + '</div>' +
+      '<label class="btn" style="cursor:pointer;">選ぶ<input type="file" accept="image/*" class="photo-input" style="display:none;"></label>' +
+      '</div></div>';
+  }
+
+  function openShopForm() {
+    var html = '<div class="overlay"><div class="modal" data-stop>' +
+      '<div class="modal-head"><h3>植物屋の訪問記録</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="shop-form">' +
+        '<div class="field"><label>店名 *</label><input type="text" name="name" required></div>' +
+        '<div class="field"><label>エリア・場所</label><input type="text" name="area" placeholder="例: 京都市左京区"></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>訪問日</label><input type="date" name="visitDate" value="' + todayIso() + '"></div>' +
+          '<div class="field"><label>また行きたい度</label><div class="rating-input" id="rating-input"></div></div>' +
+        '</div>' +
+        '<div class="field"><label>メモ</label><textarea name="notes" placeholder="品揃え、雰囲気、店主さんとの会話など"></textarea></div>' +
+        photoDropHtml() +
+        '<div class="form-error" id="form-error"></div>' +
+        '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
+      '</form></div></div>';
+    document.getElementById("modal-root").innerHTML = html;
+    renderRatingInput(3);
+  }
+
+  function renderRatingInput(value) {
+    var wrap = document.getElementById("rating-input");
+    if (!wrap) return;
+    wrap.dataset.value = value;
+    wrap.innerHTML = "";
+    for (var i = 1; i <= 5; i++) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "dot-btn" + (i <= value ? " on" : "");
+      b.dataset.action = "set-rating";
+      b.dataset.rating = i;
+      wrap.appendChild(b);
+    }
+  }
+
+  function openPlantForm() {
+    var html = '<div class="overlay"><div class="modal" data-stop>' +
+      '<div class="modal-head"><h3>植物を登録</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="plant-form">' +
+        '<div class="field"><label>名前 *</label><input type="text" name="name" required placeholder="例: モンステラ・デリシオーサ"></div>' +
+        '<div class="field"><label>学名・品種</label><input type="text" name="species" placeholder="例: Monstera deliciosa"></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>お迎え日</label><input type="date" name="acquiredDate" value="' + todayIso() + '"></div>' +
+          '<div class="field"><label>グループ</label><select name="group"><option value="">未分類</option>' +
+            PLANT_GROUPS.map(function (g) { return '<option value="' + g.value + '">' + g.label + '</option>'; }).join("") +
+          '</select></div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>状態</label><select name="status"><option value="growing">育成中</option><option value="gifted">譲った・手放した</option><option value="lost">枯れてしまった</option></select></div>' +
+          '<div class="field"><label>入手先</label><input type="text" name="source" placeholder="お店の名前など"></div>' +
+        '</div>' +
+        '<div class="field"><label>置き場所</label><input type="text" name="location" placeholder="例: リビングの窓際"></div>' +
+        '<div class="field"><label>メモ</label><textarea name="notes" placeholder="特徴や育て方のメモなど"></textarea></div>' +
+        photoDropHtml() +
+        '<div class="form-error" id="form-error"></div>' +
+        '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
+      '</form></div></div>';
+    document.getElementById("modal-root").innerHTML = html;
+  }
+
+  function openLogForm(plantId) {
+    var options = LOG_TYPES.map(function (t) { return '<option value="' + t.value + '">' + t.label + '</option>'; }).join("");
+    var methodOptions = WATER_METHODS.map(function (m) { return '<option value="' + m.value + '">' + m.label + '</option>'; }).join("");
+    var html = '<div class="overlay"><div class="modal" data-stop>' +
+      '<div class="modal-head"><h3>育成記録を追加</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="log-form" data-plant-id="' + plantId + '">' +
+        '<div class="field-row">' +
+          '<div class="field"><label>日付</label><input type="date" name="date" value="' + todayIso() + '"></div>' +
+          '<div class="field"><label>種類</label><select name="type">' + options + '</select></div>' +
+        '</div>' +
+        '<div class="field"><label>潅水方法(水やりの場合のみ)</label><select name="method"><option value="">-</option>' + methodOptions + '</select></div>' +
+        '<div class="field"><label>メモ</label><textarea name="note" placeholder="様子や気づいたことなど"></textarea></div>' +
+        photoDropHtml() +
+        '<div class="form-error" id="form-error"></div>' +
+        '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
+      '</form></div></div>';
+    document.getElementById("modal-root").innerHTML = html;
+  }
+
+  function openWishlistForm() {
+    var html = '<div class="overlay"><div class="modal" data-stop>' +
+      '<div class="modal-head"><h3>欲しい株を追加</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="wishlist-form">' +
+        '<div class="field"><label>名前 *</label><input type="text" name="name" required placeholder="例: アガベ チタノタ"></div>' +
+        '<div class="field"><label>学名・品種</label><input type="text" name="species"></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>価格の目安</label><input type="text" name="price" placeholder="例: ¥8,000"></div>' +
+          '<div class="field"><label>候補の店</label><input type="text" name="candidateShop"></div>' +
+        '</div>' +
+        '<div class="field"><label>メモ</label><textarea name="notes"></textarea></div>' +
+        photoDropHtml() +
+        '<div class="form-error" id="form-error"></div>' +
+        '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
+      '</form></div></div>';
+    document.getElementById("modal-root").innerHTML = html;
+  }
+
+  function openScheduleForm(presetPlantId) {
+    var plantOptions = state.plants.map(function (p) {
+      var sel = p.id === presetPlantId ? " selected" : "";
+      return '<option value="' + p.id + '"' + sel + '>' + esc(p.name) + '</option>';
+    }).join("");
+    var presetChips = SCHEDULE_PRESETS.map(function (p) {
+      return '<button type="button" class="filter-chip" data-action="fill-schedule-preset" data-title="' + esc(p.title) + '" data-days="' + p.days + '">' + esc(p.title) + '</button>';
+    }).join("");
+    var html = '<div class="overlay"><div class="modal" data-stop>' +
+      '<div class="modal-head"><h3>予定を追加</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="schedule-form">' +
+        '<div class="field"><label>よく使う予定</label><div class="filter-chips" style="margin-bottom:0;">' + presetChips + '</div></div>' +
+        '<div class="field"><label>内容 *</label><input type="text" name="title" required placeholder="例: 発根チェック"></div>' +
+        '<div class="field"><label>対象の植物</label><select name="plantId"><option value="">(未選択)</option>' + plantOptions + '</select></div>' +
+        '<div class="field"><label>期限日</label><input type="date" name="dueDate" value="' + addDaysIso(todayIso(), 14) + '"></div>' +
+        '<div class="form-error" id="form-error"></div>' +
+        '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
+      '</form></div></div>';
+    document.getElementById("modal-root").innerHTML = html;
+  }
+
+  function fillSchedulePreset(btn) {
+    var form = btn.closest("form");
+    form.elements.title.value = btn.dataset.title;
+    var days = parseInt(btn.dataset.days, 10) || 0;
+    form.elements.dueDate.value = addDaysIso(todayIso(), days);
+  }
+
+  function openEnvForm() {
+    var html = '<div class="overlay"><div class="modal" data-stop>' +
+      '<div class="modal-head"><h3>環境ログを追加</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="env-form">' +
+        '<div class="field"><label>日付</label><input type="date" name="date" value="' + todayIso() + '"></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>気温(℃)</label><input type="number" step="0.1" name="temp" placeholder="例: 24.5"></div>' +
+          '<div class="field"><label>湿度(%)</label><input type="number" step="1" name="humidity" placeholder="例: 55"></div>' +
+        '</div>' +
+        '<div class="field"><label>地温(℃・任意)</label><input type="number" step="0.1" name="soilTemp" placeholder="例: 22.0"></div>' +
+        '<div class="field"><label>メモ</label><textarea name="note" placeholder="天候や置き場所の変化など"></textarea></div>' +
+        '<div class="form-error" id="form-error"></div>' +
+        '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
+      '</form></div></div>';
+    document.getElementById("modal-root").innerHTML = html;
+  }
+
+  function setFormError(msg) {
+    var el = document.getElementById("form-error");
+    if (el) el.textContent = msg || "";
+  }
+
+  async function uploadPendingPhoto() {
+    if (!pendingPhoto.file || !currentUser) return null;
+    try {
+      var path = currentUser.id + "/" + Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + pendingPhoto.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      var { error } = await supabase.storage.from("plant-photos").upload(path, pendingPhoto.file);
+      if (error) return null;
+      return path;
+    } catch (e) { return null; }
+  }
+
+  async function handleShopSubmit(form) {
+    var fd = new FormData(form);
+    var ratingInput = document.getElementById("rating-input");
+    var rating = ratingInput ? parseInt(ratingInput.dataset.value, 10) : 0;
+    setFormError("");
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = "保存中…";
+    var photo_path = await uploadPendingPhoto();
+    var { error } = await supabase.from("plant_shops").insert({
+      name: (fd.get("name") || "").toString().trim() || "無題の植物屋",
+      area: (fd.get("area") || "").toString().trim(),
+      visit_date: fd.get("visitDate") || todayIso(),
+      rating: rating,
+      notes: (fd.get("notes") || "").toString().trim(),
+      photo_path: photo_path
+    });
+    if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
+    closeModal();
+    fetchShops();
+  }
+
+  async function handlePlantSubmit(form) {
+    var fd = new FormData(form);
+    setFormError("");
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = "保存中…";
+    var photo_path = await uploadPendingPhoto();
+    var { error } = await supabase.from("plant_plants").insert({
+      name: (fd.get("name") || "").toString().trim() || "無題の植物",
+      species: (fd.get("species") || "").toString().trim(),
+      acquired_date: fd.get("acquiredDate") || todayIso(),
+      group_name: fd.get("group") || null,
+      status: fd.get("status") || "growing",
+      source: (fd.get("source") || "").toString().trim(),
+      location: (fd.get("location") || "").toString().trim(),
+      notes: (fd.get("notes") || "").toString().trim(),
+      photo_path: photo_path
+    });
+    if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
+    closeModal();
+    fetchPlants();
+  }
+
+  async function handleLogSubmit(form) {
+    var plantId = form.dataset.plantId;
+    var fd = new FormData(form);
+    setFormError("");
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = "保存中…";
+    var photo_path = await uploadPendingPhoto();
+    var { error } = await supabase.from("plant_logs").insert({
+      plant_id: plantId,
+      date: fd.get("date") || todayIso(),
+      type: fd.get("type") || "other",
+      method: fd.get("type") === "water" ? ((fd.get("method") || "").toString() || null) : null,
+      note: (fd.get("note") || "").toString().trim(),
+      photo_path: photo_path
+    });
+    if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
+    closeModal();
+    fetchLogsForPlant(plantId);
+  }
+
+  async function handleWishlistSubmit(form) {
+    var fd = new FormData(form);
+    setFormError("");
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = "保存中…";
+    var photo_path = await uploadPendingPhoto();
+    var { error } = await supabase.from("plant_wishlist").insert({
+      name: (fd.get("name") || "").toString().trim() || "無題",
+      species: (fd.get("species") || "").toString().trim(),
+      price: (fd.get("price") || "").toString().trim(),
+      candidate_shop: (fd.get("candidateShop") || "").toString().trim(),
+      notes: (fd.get("notes") || "").toString().trim(),
+      photo_path: photo_path
+    });
+    if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
+    closeModal();
+    fetchWishlist();
+  }
+
+  async function buyWishlist(id) {
+    var item = state.wishlist.find(function (w) { return w.id === id; });
+    if (!item) return;
+    var { error } = await supabase.from("plant_plants").insert({
+      name: item.name || "無題の植物",
+      species: item.species || "",
+      acquired_date: todayIso(),
+      group_name: null,
+      status: "growing",
+      source: item.candidate_shop || "",
+      location: "",
+      notes: item.notes || "",
+      photo_path: item.photo_path || null
+    });
+    if (error) return;
+    await supabase.from("plant_wishlist").delete().eq("id", id);
+    state.tab = "plants";
+    await Promise.all([fetchPlants(), fetchWishlist()]);
+  }
+
+  async function handleScheduleSubmit(form) {
+    var fd = new FormData(form);
+    var plantId = fd.get("plantId") || null;
+    var plant = plantId ? state.plants.find(function (p) { return p.id === plantId; }) : null;
+    setFormError("");
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = "保存中…";
+    var { error } = await supabase.from("plant_schedule").insert({
+      plant_id: plantId || null,
+      plant_name: plant ? plant.name : "",
+      title: (fd.get("title") || "").toString().trim() || "予定",
+      due_date: fd.get("dueDate") || todayIso(),
+      done: false
+    });
+    if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
+    closeModal();
+    fetchSchedule();
+  }
+
+  async function setScheduleDone(id, value) {
+    await supabase.from("plant_schedule").update({ done: value }).eq("id", id);
+    fetchSchedule();
+  }
+
+  async function handleEnvSubmit(form) {
+    var fd = new FormData(form);
+    setFormError("");
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = "保存中…";
+    function num(key) { var v = fd.get(key); if (v === null || v === "") return null; var n = parseFloat(v); return isNaN(n) ? null : n; }
+    var { error } = await supabase.from("plant_env_logs").insert({
+      date: fd.get("date") || todayIso(),
+      temp: num("temp"),
+      humidity: num("humidity"),
+      soil_temp: num("soilTemp"),
+      note: (fd.get("note") || "").toString().trim()
+    });
+    if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
+    closeModal();
+    fetchEnvLogs();
+  }
+
+  // ---------------- delete (arm-then-confirm) ----------------
+  function handleDeleteClick(btn) {
+    var key = btn.dataset.action + ":" + (btn.dataset.plantId || "") + ":" + btn.dataset.id;
+    if (btn.classList.contains("armed")) {
+      clearTimeout(armedTimers[key]);
+      delete armedTimers[key];
+      performDelete(btn);
+      return;
+    }
+    btn.classList.add("armed");
+    btn.textContent = "本当に削除？";
+    armedTimers[key] = setTimeout(function () { btn.classList.remove("armed"); btn.textContent = "削除"; }, 3000);
+  }
+
+  async function performDelete(btn) {
+    var action = btn.dataset.action;
+    if (action === "delete-shop") { await supabase.from("plant_shops").delete().eq("id", btn.dataset.id); fetchShops(); }
+    else if (action === "delete-plant") { await supabase.from("plant_plants").delete().eq("id", btn.dataset.id); closePlantDetail(); fetchPlants(); }
+    else if (action === "delete-log") { await supabase.from("plant_logs").delete().eq("id", btn.dataset.id); fetchLogsForPlant(btn.dataset.plantId); }
+    else if (action === "delete-wishlist") { await supabase.from("plant_wishlist").delete().eq("id", btn.dataset.id); fetchWishlist(); }
+    else if (action === "delete-schedule") { await supabase.from("plant_schedule").delete().eq("id", btn.dataset.id); fetchSchedule(); }
+    else if (action === "delete-env") { await supabase.from("plant_env_logs").delete().eq("id", btn.dataset.id); fetchEnvLogs(); }
+  }
+
+  // ---------------- events ----------------
+  document.addEventListener("click", function (e) {
+    var overlayEl = e.target.closest(".overlay");
+    if (overlayEl && e.target === overlayEl) { closeModal(); return; }
+    var actionEl = e.target.closest("[data-action]");
+    if (!actionEl) return;
+    var action = actionEl.dataset.action;
+    if (action === "set-tab") { state.tab = actionEl.dataset.tab; state.openPlantId = null; render(); }
+    else if (action === "open-shop-form") openShopForm();
+    else if (action === "open-plant-form") openPlantForm();
+    else if (action === "open-plant") openPlantDetail(actionEl.dataset.id);
+    else if (action === "close-plant") closePlantDetail();
+    else if (action === "open-log-form") openLogForm(actionEl.dataset.plantId);
+    else if (action === "open-wishlist-form") openWishlistForm();
+    else if (action === "open-schedule-form") openScheduleForm(actionEl.dataset.plantId || "");
+    else if (action === "open-env-form") openEnvForm();
+    else if (action === "fill-schedule-preset") fillSchedulePreset(actionEl);
+    else if (action === "buy-wishlist") buyWishlist(actionEl.dataset.id);
+    else if (action === "goto-plant") { state.tab = "plants"; openPlantDetail(actionEl.dataset.id); }
+    else if (action === "set-shop-subtab") { state.shopSubTab = actionEl.dataset.sub; render(); }
+    else if (action === "set-group-filter") { state.groupFilter = actionEl.dataset.group; render(); }
+    else if (action === "toggle-schedule") setScheduleDone(actionEl.dataset.id, actionEl.checked);
+    else if (action === "overlay-close") closeModal();
+    else if (action === "sign-out") signOut();
+    else if (action === "delete-shop" || action === "delete-plant" || action === "delete-log" ||
+             action === "delete-wishlist" || action === "delete-schedule" || action === "delete-env") {
+      e.stopPropagation(); handleDeleteClick(actionEl);
+    }
+    else if (action === "set-rating") renderRatingInput(parseInt(actionEl.dataset.rating, 10));
+  });
+
+  document.addEventListener("submit", function (e) {
+    if (e.target.id === "shop-form") { e.preventDefault(); handleShopSubmit(e.target); }
+    else if (e.target.id === "plant-form") { e.preventDefault(); handlePlantSubmit(e.target); }
+    else if (e.target.id === "log-form") { e.preventDefault(); handleLogSubmit(e.target); }
+    else if (e.target.id === "wishlist-form") { e.preventDefault(); handleWishlistSubmit(e.target); }
+    else if (e.target.id === "schedule-form") { e.preventDefault(); handleScheduleSubmit(e.target); }
+    else if (e.target.id === "env-form") { e.preventDefault(); handleEnvSubmit(e.target); }
+  });
+
+  document.addEventListener("change", function (e) {
+    if (e.target.classList && e.target.classList.contains("photo-input")) {
+      var file = e.target.files[0];
+      if (!file) return;
+      pendingPhoto.file = file;
+      pendingPhoto.previewUrl = URL.createObjectURL(file);
+      var drop = e.target.closest(".photo-drop");
+      if (drop) {
+        drop.querySelector(".preview").innerHTML = '<img src="' + pendingPhoto.previewUrl + '" alt="">';
+        drop.querySelector(".drop-text").innerHTML = '<span class="fname">' + esc(file.name) + '</span>';
+      }
+    }
+  });
+
+  // check for an existing session on load
+  supabase.auth.getSession().then(function (res) {
+    var session = res.data && res.data.session;
+    if (session) {
+      currentUser = session.user;
+      document.getElementById("auth-screen").hidden = true;
+      document.getElementById("app").hidden = false;
+      loadAll();
+    }
+  });
+})();
+</script>
+</body>
+</html>
