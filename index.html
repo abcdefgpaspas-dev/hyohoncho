@@ -227,9 +227,25 @@
       <div class="auth-actions">
         <button type="submit" class="btn btn-primary" id="auth-submit">ログイン</button>
         <button type="button" class="btn btn-ghost" id="auth-toggle" style="align-self:center;">アカウントをお持ちでない方はこちら</button>
+        <button type="button" class="btn btn-ghost" id="auth-forgot" style="align-self:center;font-size:12px;">パスワードをお忘れですか?</button>
       </div>
     </form>
     <p class="auth-note" id="auth-note"></p>
+  </div>
+</div>
+
+<div id="reset-screen" class="auth-wrap" hidden>
+  <div class="auth-card">
+    <p class="brand-eyebrow">Hortus Domesticus</p>
+    <h1>パスワードの再設定</h1>
+    <p class="auth-sub">新しいパスワードを入力してください。</p>
+    <form id="reset-form">
+      <div class="field"><label>新しいパスワード(6文字以上)</label><input type="password" name="password" required minlength="6" autocomplete="new-password"></div>
+      <div class="form-error" id="reset-error"></div>
+      <div class="auth-actions">
+        <button type="submit" class="btn btn-primary" id="reset-submit">パスワードを変更する</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -363,6 +379,28 @@
     setAuthMode(authMode === "signin" ? "signup" : "signin");
   });
 
+  document.getElementById("auth-forgot").addEventListener("click", async function () {
+    var emailInput = document.querySelector('#auth-form input[name="email"]');
+    var email = (emailInput.value || "").trim();
+    var errEl = document.getElementById("auth-error");
+    var noteEl = document.getElementById("auth-note");
+    errEl.textContent = "";
+    noteEl.textContent = "";
+    if (!email) {
+      errEl.textContent = "先にメールアドレスを入力してください。";
+      return;
+    }
+    this.disabled = true;
+    try {
+      var { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+      if (error) throw error;
+      noteEl.textContent = "パスワード再設定用のメールを送信しました。メール内のリンクを開いて新しいパスワードを設定してください。";
+    } catch (err) {
+      errEl.textContent = translateAuthError(err);
+    }
+    this.disabled = false;
+  });
+
   document.getElementById("auth-form").addEventListener("submit", async function (e) {
     e.preventDefault();
     var fd = new FormData(e.target);
@@ -408,14 +446,42 @@
     await supabase.auth.signOut();
   }
 
+  document.getElementById("reset-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    var password = (fd.get("password") || "").toString();
+    var errEl = document.getElementById("reset-error");
+    var submitBtn = document.getElementById("reset-submit");
+    errEl.textContent = "";
+    submitBtn.disabled = true;
+    try {
+      var { error } = await supabase.auth.updateUser({ password: password });
+      if (error) throw error;
+      document.getElementById("reset-screen").hidden = true;
+      // history/URL still carries the recovery token fragment; drop it so a reload doesn't retrigger recovery mode
+      history.replaceState(null, "", window.location.pathname);
+    } catch (err) {
+      errEl.textContent = translateAuthError(err);
+      submitBtn.disabled = false;
+    }
+  });
+
   supabase.auth.onAuthStateChange(function (event, session) {
+    if (event === "PASSWORD_RECOVERY") {
+      document.getElementById("auth-screen").hidden = true;
+      document.getElementById("app").hidden = true;
+      document.getElementById("reset-screen").hidden = false;
+      return;
+    }
     if (session && session.user) {
       currentUser = session.user;
       document.getElementById("auth-screen").hidden = true;
+      document.getElementById("reset-screen").hidden = true;
       document.getElementById("app").hidden = false;
       loadAll();
     } else {
       currentUser = null;
+      document.getElementById("reset-screen").hidden = true;
       document.getElementById("auth-screen").hidden = false;
       document.getElementById("app").hidden = true;
     }
