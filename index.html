@@ -706,6 +706,7 @@
         '</dl>' +
         (plant.notes ? '<p class="detail-notes">' + esc(plant.notes) + '</p>' : "") +
         '<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">' +
+          '<button class="btn" data-action="edit-plant" data-id="' + plant.id + '">編集する</button>' +
           '<button class="btn btn-ghost" data-action="open-schedule-form" data-plant-id="' + plant.id + '">+ この植物の予定を追加</button>' +
           '<button class="btn btn-ghost btn-danger-arm" data-action="delete-plant" data-id="' + plant.id + '">この植物を削除</button>' +
         '</div>' +
@@ -871,24 +872,31 @@
     }
   }
 
-  function openPlantForm() {
+  function openPlantForm(plant) {
+    var isEdit = !!plant;
+    if (isEdit && plant.photoUrl) pendingPhoto = { file: null, previewUrl: plant.photoUrl };
+    function opt(value, label, current) { return '<option value="' + value + '"' + (value === current ? " selected" : "") + '>' + label + '</option>'; }
     var html = '<div class="overlay"><div class="modal" data-stop>' +
-      '<div class="modal-head"><h3>植物を登録</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
-      '<form class="modal-body" id="plant-form">' +
-        '<div class="field"><label>名前 *</label><input type="text" name="name" required placeholder="例: モンステラ・デリシオーサ"></div>' +
-        '<div class="field"><label>学名・品種</label><input type="text" name="species" placeholder="例: Monstera deliciosa"></div>' +
+      '<div class="modal-head"><h3>' + (isEdit ? "植物を編集" : "植物を登録") + '</h3><button class="modal-close" data-action="overlay-close">×</button></div>' +
+      '<form class="modal-body" id="plant-form" data-edit-id="' + (isEdit ? plant.id : "") + '">' +
+        '<div class="field"><label>名前 *</label><input type="text" name="name" required placeholder="例: モンステラ・デリシオーサ" value="' + (isEdit ? esc(plant.name) : "") + '"></div>' +
+        '<div class="field"><label>学名・品種</label><input type="text" name="species" placeholder="例: Monstera deliciosa" value="' + (isEdit ? esc(plant.species || "") : "") + '"></div>' +
         '<div class="field-row">' +
-          '<div class="field"><label>お迎え日</label><input type="date" name="acquiredDate" value="' + todayIso() + '"></div>' +
+          '<div class="field"><label>お迎え日</label><input type="date" name="acquiredDate" value="' + (isEdit ? (plant.acquired_date || "") : todayIso()) + '"></div>' +
           '<div class="field"><label>グループ</label><select name="group"><option value="">未分類</option>' +
-            PLANT_GROUPS.map(function (g) { return '<option value="' + g.value + '">' + g.label + '</option>'; }).join("") +
+            PLANT_GROUPS.map(function (g) { return opt(g.value, g.label, isEdit ? plant.group_name : ""); }).join("") +
           '</select></div>' +
         '</div>' +
         '<div class="field-row">' +
-          '<div class="field"><label>状態</label><select name="status"><option value="growing">育成中</option><option value="gifted">譲った・手放した</option><option value="lost">枯れてしまった</option></select></div>' +
-          '<div class="field"><label>入手先</label><input type="text" name="source" placeholder="お店の名前など"></div>' +
+          '<div class="field"><label>状態</label><select name="status">' +
+            opt("growing", "育成中", isEdit ? plant.status : "growing") +
+            opt("gifted", "譲った・手放した", isEdit ? plant.status : "growing") +
+            opt("lost", "枯れてしまった", isEdit ? plant.status : "growing") +
+          '</select></div>' +
+          '<div class="field"><label>入手先</label><input type="text" name="source" placeholder="お店の名前など" value="' + (isEdit ? esc(plant.source || "") : "") + '"></div>' +
         '</div>' +
-        '<div class="field"><label>置き場所</label><input type="text" name="location" placeholder="例: リビングの窓際"></div>' +
-        '<div class="field"><label>メモ</label><textarea name="notes" placeholder="特徴や育て方のメモなど"></textarea></div>' +
+        '<div class="field"><label>置き場所</label><input type="text" name="location" placeholder="例: リビングの窓際" value="' + (isEdit ? esc(plant.location || "") : "") + '"></div>' +
+        '<div class="field"><label>メモ</label><textarea name="notes" placeholder="特徴や育て方のメモなど">' + (isEdit ? esc(plant.notes || "") : "") + '</textarea></div>' +
         photoDropHtml() +
         '<div class="form-error" id="form-error"></div>' +
         '<div class="modal-footer"><button type="button" class="btn" data-action="overlay-close">キャンセル</button><button type="submit" class="btn btn-primary">保存する</button></div>' +
@@ -1016,11 +1024,12 @@
 
   async function handlePlantSubmit(form) {
     var fd = new FormData(form);
+    var editId = form.dataset.editId;
     setFormError("");
     var submitBtn = form.querySelector('button[type=submit]');
     submitBtn.disabled = true; submitBtn.textContent = "保存中…";
     var photo_path = await uploadPendingPhoto();
-    var { error } = await supabase.from("plant_plants").insert({
+    var payload = {
       name: (fd.get("name") || "").toString().trim() || "無題の植物",
       species: (fd.get("species") || "").toString().trim(),
       acquired_date: fd.get("acquiredDate") || todayIso(),
@@ -1028,9 +1037,14 @@
       status: fd.get("status") || "growing",
       source: (fd.get("source") || "").toString().trim(),
       location: (fd.get("location") || "").toString().trim(),
-      notes: (fd.get("notes") || "").toString().trim(),
-      photo_path: photo_path
-    });
+      notes: (fd.get("notes") || "").toString().trim()
+    };
+    // Keep the existing photo when editing without picking a new one.
+    if (!editId || photo_path) payload.photo_path = photo_path;
+    var query = editId
+      ? supabase.from("plant_plants").update(payload).eq("id", editId)
+      : supabase.from("plant_plants").insert(payload);
+    var { error } = await query;
     if (error) { setFormError("保存に失敗しました: " + error.message); submitBtn.disabled = false; submitBtn.textContent = "保存する"; return; }
     closeModal();
     fetchPlants();
@@ -1171,6 +1185,7 @@
     if (action === "set-tab") { state.tab = actionEl.dataset.tab; state.openPlantId = null; render(); }
     else if (action === "open-shop-form") openShopForm();
     else if (action === "open-plant-form") openPlantForm();
+    else if (action === "edit-plant") openPlantForm(state.plants.find(function (p) { return p.id === actionEl.dataset.id; }));
     else if (action === "open-plant") openPlantDetail(actionEl.dataset.id);
     else if (action === "close-plant") closePlantDetail();
     else if (action === "open-log-form") openLogForm(actionEl.dataset.plantId);
